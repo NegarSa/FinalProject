@@ -15,6 +15,7 @@
 #define CTRLR 18
 #define CTRLS 19
 #define ALTF4 107
+#define CTRLF 6
 #define YES 1
 #define NO 0
 int fexist = NO;
@@ -37,6 +38,7 @@ void toright(nodeptr position);
 void readfromfile(nodeptr *start, nodeptr position);
 void printtofile(nodeptr start);
 void openexe(char *, char *);
+void findstring(nodeptr start);
 int main()
 {
 	int character;
@@ -64,6 +66,10 @@ int main()
 			break;
 		case CTRLS:
 			printtofile(start);
+		case CTRLF:
+		{
+			findstring(start);
+		}
 		case 0:
 		case KEYCONST:
 			character = getch();
@@ -106,7 +112,7 @@ int main()
 		case ALTF4:
 		{
 			char choice;
-			openexe("getuserchioce.exe", "Do_you_want_to_exit_?_press_'y'_for_yes_and_'n'_for_no!!!");
+			openexe("getuserchoice.exe", "Do_you_want_to_exit_?_press_'y'_for_yes_and_'n'_for_no!!!");
 			FILE *fptr;
 			fptr = fopen("userchoice.txt", "r");
 			choice = fgetc(fptr);
@@ -414,7 +420,7 @@ void printtofile(nodeptr start)
 		fptr = fopen("userchoice.txt", "r");
 		choice = fgetc(fptr);
 		fclose(fptr);
-		if(choice=='n'||choice=='N')
+		if (choice == 'n' || choice == 'N')
 			openexe("getfilename.exe", NULL);
 	}
 	else
@@ -463,4 +469,94 @@ void printtofile(nodeptr start)
 	fclose(fptr);
 	openexe("printmassage.exe", "Saved_successfully...");
 	fexist = YES;
+}
+void findstring(nodeptr start)
+{
+	//counting the nodes
+	int numofnodes = 0;
+	nodeptr cur = start;
+
+	while (cur != NULL) {
+		numofnodes++;
+		cur = cur->next;
+	}
+	//convert the list to a string
+	char *string;
+	string = (char *)malloc(sizeof(char)*(numofnodes + 1));
+	cur = start;
+	int i = 0;
+	while (cur != NULL) {
+		string[i++] = cur->data;
+		cur = cur->next;
+	}
+	string[i] = '\0';
+	//getting the phrase from the user
+	char phrase[50];
+	openexe("getuserchoice.exe", "Enter_the_string_you_want_to_find\n");
+	FILE *fptr;
+	fptr = fopen("userchoice.txt", "r");
+
+	if (fptr == NULL)
+	{
+		openexe("printmassage.exe", "ERROR(WITH_USERCHOICE.EXE");
+		return;
+	}
+	fgets(phrase, 50, fptr);
+	fclose(fptr);
+
+	for (int i = strlen(phrase) - 1; i >= 0; i--) {
+		if (phrase[i] == '\n')
+			phrase[i] = '\0';
+	}
+	char *temp;
+	int numfound = 0;
+	temp = strstr(string, phrase);
+	while (temp != NULL)
+	{
+		numfound++;
+		temp++;
+		temp = strstr(temp, phrase);
+	}
+	if (numfound == 0)
+		return;
+	int *num;
+	num = (int *)malloc(sizeof(int)*numfound);
+	temp = strstr(string, phrase);
+	for (size_t i = 0; temp != NULL; i++)
+	{
+		*(num + i) = temp - string;
+		temp++;
+		temp = strstr(temp, phrase);
+	}
+	*(num + i) = -1;
+	int phraselen = strlen(phrase);
+	//printing the list
+	cur = start;
+	int j = 0;
+	system("cls");
+	for (i = 0; cur != NULL; i++)
+	{
+		if (i == *(num + j))
+			printf("\x1B[32m");
+		if (i == (*(num + j))+phraselen)
+		{
+			printf("\x1B[37m");
+			j++;
+		}
+		switch (cur->data) {
+		case SPACE:
+			printf(" ");
+			break;
+		case TAB:
+			printf("\t");
+			break;
+		case ENTER:
+			printf("\n");
+			break;
+		default:
+			printf("%c", cur->data);
+			break;
+		}
+		cur = cur->next;
+	}
 }
