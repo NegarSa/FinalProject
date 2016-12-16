@@ -477,7 +477,7 @@ void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 		default:
 			printf("%c", cur->data);
 			break;
-		}
+		};
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x07);
 		cur = cur->next;
 	}
