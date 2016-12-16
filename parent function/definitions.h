@@ -17,6 +17,10 @@
 #define CTRLS 19
 #define ALTF4 107
 #define CTRLF 6
+#define CTRLRIGHT 116
+#define CTRLLEFT 115
+#define CTRLUP 141
+#define CTRLDOWN 145
 #define YES 1
 #define NO 0
 static int fexist = NO;
@@ -27,3 +31,5 @@ struct Node {
 };
 typedef struct Node node;
 typedef node * nodeptr;
+static node bselect = { 0 };
+static node eselect = { 0 };

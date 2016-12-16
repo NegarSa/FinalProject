@@ -46,19 +46,11 @@ int main()
 				print(start, position);
 				break;
 			case UP:
-				seekchar(&position, LEFT, ENTER);
+				goup(&position);
 				print(start, position);
 				break;
 			case DOWN:
-				for (int i = 0; i < 2; i++)
-					if (seekchar(&position, RIGHT, ENTER)) {
-						if (!i) toright(&position);
-					}
-					else
-					{
-						while (position.next != NULL)
-							toright(&position);
-					}
+				godown(&position);
 				print(start, position);
 				break;
 			case DELETE:
@@ -90,7 +82,18 @@ int main()
 					return 0;
 				}
 			}
-
+			case CTRLRIGHT:
+				select(start, &position, prevchoice, CTRLRIGHT);
+				break;
+			case CTRLLEFT:
+				select(start, &position, prevchoice, CTRLLEFT);
+				break;
+			case CTRLUP:
+				select(start, &position, prevchoice, CTRLUP);
+				break;
+			case CTRLDOWN:
+				select(start, &position, prevchoice, CTRLDOWN);
+				break;
 			}
 			break;
 		default:

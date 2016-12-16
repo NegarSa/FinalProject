@@ -1,8 +1,6 @@
-
 #include"functions.h"
 void insert(nodeptr *start, nodeptr position, int value)
 {
-
 	//making a new list
 	if (*start == NULL)
 	{
@@ -70,7 +68,6 @@ void Delete(nodeptr *start, nodeptr position)
 		*start = position->next;
 		return;
 	}
-
 	//delete the last node
 	nodeptr temp;
 	if (position->next == NULL)
@@ -81,7 +78,6 @@ void Delete(nodeptr *start, nodeptr position)
 		(position->previous)->next = NULL;
 		return;
 	}
-
 	//delete otherwise
 	temp = (position->previous)->previous;
 	free(position->previous);
@@ -117,13 +113,11 @@ void print(nodeptr start, node position)
 	}
 	setcursor(start, position);
 }
-
 //set the blinking cursor position in the screen
 void setcursor(nodeptr start, node position)
 {
 	if (position.next == NULL)
 		return;
-
 	printf("\033[1000D");
 	printf("\033[1000A");
 	nodeptr cur = start;
@@ -234,7 +228,22 @@ void toright(nodeptr position)
 	position->previous = position->next;
 	position->next = (position->next)->next;
 }
-
+void goup(nodeptr position)
+{
+	seekchar(position, LEFT, ENTER);
+}
+void godown(nodeptr position)
+{
+	for (int i = 0; i < 2; i++)
+		if (seekchar(position, RIGHT, ENTER)) {
+			if (!i) toright(position);
+		}
+		else
+		{
+			while (position->next != NULL)
+				toright(position);
+		}
+}
 //read a .txt file and insert it into editor
 void readfromfile(nodeptr *start, nodeptr position)
 {
@@ -417,4 +426,60 @@ void findstring(nodeptr start)
 		}
 		cur = cur->next;
 	}
+}
+void select(nodeptr start, nodeptr position, int prevchoice, int choice)
+{
+	if (prevchoice != CTRLRIGHT&&prevchoice != CTRLLEFT&&prevchoice != CTRLUP&&prevchoice != CTRLDOWN) 
+		bselect = *position;
+	switch (choice)
+	{
+	case CTRLRIGHT:
+		if (position->next == NULL)
+			break;
+		toright(position);
+		break;
+	case CTRLLEFT:
+		if (position->previous == NULL)
+			break;
+		toleft(position);
+		break;
+	case CTRLUP:
+		goup(position);
+		break;
+	case CTRLDOWN:
+		godown(position);
+		break;
+	}
+	eselect = *position;
+	system("cls");
+	nodeptr cur = start;
+	int flag = 0;
+	while (cur != NULL)
+	{
+		if (flag==0&&(cur == bselect.next||cur==eselect.next))
+			flag = 1;
+		else if (flag == 1 && (cur == bselect.next || cur == eselect.next))
+			flag = 0;
+		if (flag)
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1760 | 011);
+		else
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x07);
+		switch (cur->data) {
+		case SPACE:
+			printf(" ");
+			break;
+		case TAB:
+			printf("\t");
+			break;
+		case ENTER:
+			printf("\n");
+			break;
+		default:
+			printf("%c", cur->data);
+			break;
+		}
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x07);
+		cur = cur->next;
+	}
+	setcursor(start, *position);
 }

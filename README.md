@@ -7,10 +7,5 @@ this is a simple text editor:
 --the definitions , function prototypes ,fuction declaration and the main function are in separate files..
 
 
-----
-hope you enjoy it
-
-
-__________
-|sepantou |
------------
+------------------------------------------------------------------------------------------------------------
+Reza Esfandiarpoor
