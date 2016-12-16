@@ -9,6 +9,11 @@ int main()
 	nodeptr start;
 	start = NULL;
 
+	nodeptr buffstart;
+	buffstart = NULL;
+	node buffpos;
+	buffpos.next = buffpos.previous = NULL;
+
 
 	while (1) {
 
@@ -28,6 +33,13 @@ int main()
 			printtofile(start);
 		case CTRLF:
 			findstring(start);
+			break;
+		case CTRLC:
+			copy(start, &buffstart, &buffpos, prevchoice);
+			break;
+		case CTRLV:
+			paste(&start, &position, buffstart);
+			print(start, position);
 			break;
 		case 0:
 		case KEYCONST:

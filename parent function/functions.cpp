@@ -429,7 +429,7 @@ void findstring(nodeptr start)
 }
 void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 {
-	if (prevchoice != CTRLRIGHT&&prevchoice != CTRLLEFT&&prevchoice != CTRLUP&&prevchoice != CTRLDOWN) 
+	if (prevchoice != CTRLRIGHT&&prevchoice != CTRLLEFT&&prevchoice != CTRLUP&&prevchoice != CTRLDOWN)
 		bselect = *position;
 	switch (choice)
 	{
@@ -456,7 +456,7 @@ void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 	int flag = 0;
 	while (cur != NULL)
 	{
-		if (flag==0&&(cur == bselect.next||cur==eselect.next))
+		if (flag == 0 && (cur == bselect.next || cur == eselect.next))
 			flag = 1;
 		else if (flag == 1 && (cur == bselect.next || cur == eselect.next))
 			flag = 0;
@@ -482,4 +482,50 @@ void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 		cur = cur->next;
 	}
 	setcursor(start, *position);
+}
+void emptybuff(nodeptr *buffstart)
+{
+	if (*buffstart == NULL)
+		return;
+	nodeptr temp;
+
+	temp = *buffstart;
+	while (temp != NULL)
+	{
+		nodeptr temp2;
+		temp2 = temp;
+		temp = temp->next;
+		free(temp2);
+	}
+	*buffstart = NULL;
+	return;
+}
+void copy(nodeptr start, nodeptr *buffstart, nodeptr buffpos, int prevchoice)
+{
+	emptybuff(buffstart);
+	if (prevchoice != CTRLRIGHT&&prevchoice != CTRLLEFT&&prevchoice != CTRLUP&&prevchoice != CTRLDOWN)
+		return;
+	nodeptr cur = start;
+	int flag = 0;
+	while (cur != NULL)
+	{
+		if (flag == 0 && (cur == bselect.next || cur == eselect.next))
+			flag = 1;
+		else if (flag == 1 && (cur == bselect.next || cur == eselect.next))
+			flag = 0;
+		if (flag)
+			insert(buffstart, buffpos, cur->data);
+		cur = cur->next;
+	}
+}
+void paste(nodeptr *start, nodeptr position, nodeptr buffstart)
+{
+	if (buffstart == NULL)
+		return;
+	nodeptr cur = buffstart;
+	while (cur != NULL)
+	{
+		insert(start, position, cur->data);
+		cur = cur->next;
+	}
 }

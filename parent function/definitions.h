@@ -21,6 +21,8 @@
 #define CTRLLEFT 115
 #define CTRLUP 141
 #define CTRLDOWN 145
+#define CTRLC 3
+#define CTRLV 22
 #define YES 1
 #define NO 0
 static int fexist = NO;
