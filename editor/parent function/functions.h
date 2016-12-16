@@ -17,3 +17,4 @@ void select(nodeptr start, nodeptr position, int prevchoice,int choice);
 void copy(nodeptr start,nodeptr *buffstart,nodeptr buffpos, int prevchoice);
 void emptybuff(nodeptr *buffstart);
 void paste(nodeptr *start, nodeptr position, nodeptr buffstart);
+void clearscreen();

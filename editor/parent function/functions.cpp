@@ -1,4 +1,10 @@
 #include"functions.h"
+void clearscreen()
+{
+	printf("\033[2J");
+	printf("\033[1000D");
+	printf("\033[1000A");
+}
 void insert(nodeptr *start, nodeptr position, int value)
 {
 	//making a new list
@@ -88,7 +94,7 @@ void Delete(nodeptr *start, nodeptr position)
 // print
 void print(nodeptr start, node position)
 {
-	system("cls");
+	clearscreen();
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  FOREGROUND_GREEN );
 	if (start == NULL)
 		return;
@@ -426,7 +432,7 @@ void findstring(nodeptr start)
 	//printing the list
 	cur = start;
 	int j = 0;
-	system("cls");
+	clearscreen();
 	for (i = 0; cur != NULL; i++)
 	{
 		if (i == *(num + j))
@@ -477,7 +483,7 @@ void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 		break;
 	}
 	eselect = *position;
-	system("cls");
+	clearscreen();
 	nodeptr cur = start;
 	int flag = 0;
 	while (cur != NULL)
