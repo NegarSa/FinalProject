@@ -4,7 +4,7 @@ void Delete(nodeptr *start, nodeptr position);
 void print(nodeptr start, node position);
 void setcursor(nodeptr start, node position);
 //seeking a char in the list form the current position to the begining and end for 0 and 1 respectively
-int seekchar(nodeptr position, int direction, int value);
+int seekchar(nodeptr position, int direction, int value,int enable,int *length);
 void toleft(nodeptr position);
 void toright(nodeptr position);
 void goup(nodeptr position);

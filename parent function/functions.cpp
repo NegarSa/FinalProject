@@ -89,6 +89,7 @@ void Delete(nodeptr *start, nodeptr position)
 void print(nodeptr start, node position)
 {
 	system("cls");
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  FOREGROUND_GREEN );
 	if (start == NULL)
 		return;
 	nodeptr cur = start;
@@ -140,33 +141,47 @@ void setcursor(nodeptr start, node position)
 }
 //seeking a char in the list form the current position to the begining and end for 0 and 1 respectively
 //wont change the position if it couldnt find the char 
-//the cursor position to the left of the specified character
-int seekchar(nodeptr position, int direction, int value)
+//place the cursor position to the left of the specified character
+int seekchar(nodeptr position, int direction, int value, int enable,int *length)
 {
 	node temp;
 	temp = *position;
+	int i;
 	switch (direction)
 	{
 	case LEFT:
-		if (temp.previous == NULL)
+		if (temp.previous == NULL) {
+			*length = 0;
 			return 0;
-		while ((temp.previous)->data != value) {
+		}
+		for (i = 0; (temp.previous)->data != value; i++) {
 			toleft(&temp);
 			if (temp.previous == NULL)
+			{
+				*length = i+1;
 				return 0;
+			}
 		}
 		toleft(&temp);
-		*position = temp;
+		if (enable == YES)
+			*position = temp;
+		*length = i;
 		return 1;
 	case RIGHT:
-		if (temp.next == NULL)
+		if (temp.next == NULL) {
+			*length = 0;
 			return 0;
-		while ((temp.next)->data != value) {
-			toright(&temp);
-			if (temp.next == NULL)
-				return 0;
 		}
-		*position = temp;
+		for (i = 0; (temp.next)->data != value; i++) {
+			toright(&temp);
+			if (temp.next == NULL) {
+				*length = i+1;
+					return 0;
+			}
+		}
+		if (enable == YES)
+			*position = temp;
+		*length = i;
 		return 1;
 	}
 
@@ -230,12 +245,20 @@ void toright(nodeptr position)
 }
 void goup(nodeptr position)
 {
-	seekchar(position, LEFT, ENTER);
+	int length1,length2;
+	if (seekchar(position, LEFT, ENTER, YES, &length1) == 0)
+		return;
+	seekchar(position, LEFT, ENTER, NO, &length2);
+	if (length2 > length1)
+		for (int i = 0; i < length2 - length1; i++)
+			toleft(position);
 }
 void godown(nodeptr position)
 {
+	int length1,length2;
+	seekchar(position, LEFT, ENTER, NO, &length1);
 	for (int i = 0; i < 2; i++)
-		if (seekchar(position, RIGHT, ENTER)) {
+		if (seekchar(position, RIGHT, ENTER, YES,&length2)) {
 			if (!i) toright(position);
 		}
 		else
@@ -243,6 +266,9 @@ void godown(nodeptr position)
 			while (position->next != NULL)
 				toright(position);
 		}
+	if (length2 > length1)
+		for (int i = 0; i < length2 - length1; i++)
+			toleft(position);
 }
 //read a .txt file and insert it into editor
 void readfromfile(nodeptr *start, nodeptr position)

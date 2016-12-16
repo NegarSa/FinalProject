@@ -14,7 +14,7 @@ int main()
 	node buffpos;
 	buffpos.next = buffpos.previous = NULL;
 
-
+	
 	while (1) {
 
 		character = getch();
