@@ -1,10 +1,11 @@
 #include"functions.h"
 void clearscreen()
 {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN | BACKGROUND_BLUE);
 	printf("\033[2J");
 	printf("\033[1000D");
 	printf("\033[1000A");
-}
+	}
 void insert(nodeptr *start, nodeptr position, int value)
 {
 	//making a new list
@@ -95,7 +96,7 @@ void Delete(nodeptr *start, nodeptr position)
 void print(nodeptr start, node position)
 {
 	clearscreen();
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  FOREGROUND_GREEN );
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  FOREGROUND_GREEN|FOREGROUND_INTENSITY| BACKGROUND_GREEN | BACKGROUND_BLUE );
 	if (start == NULL)
 		return;
 	nodeptr cur = start;
@@ -436,10 +437,10 @@ void findstring(nodeptr start)
 	for (i = 0; cur != NULL; i++)
 	{
 		if (i == *(num + j))
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1760 | 011);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN  | BACKGROUND_GREEN | BACKGROUND_BLUE|BACKGROUND_INTENSITY);
 		if (i == (*(num + j)) + phraselen)
 		{
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x07);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE);
 			j++;
 		}
 		switch (cur->data) {
@@ -493,9 +494,9 @@ void select(nodeptr start, nodeptr position, int prevchoice, int choice)
 		else if (flag == 1 && (cur == bselect.next || cur == eselect.next))
 			flag = 0;
 		if (flag)
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1760 | 011);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN  | BACKGROUND_GREEN | BACKGROUND_BLUE|BACKGROUND_INTENSITY);
 		else
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x07);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE);
 		switch (cur->data) {
 		case SPACE:
 			printf(" ");
