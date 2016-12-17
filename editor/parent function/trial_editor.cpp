@@ -31,6 +31,7 @@ int main()
 			break;
 		case CTRLS:
 			printtofile(start);
+			break;
 		case CTRLF:
 			findstring(start);
 			break;
@@ -71,7 +72,7 @@ int main()
 				toright(&position);
 				Delete(&start, &position);
 				print(start, position);
-
+				break;
 			case ALTF4:
 			{
 				char choice;
@@ -94,6 +95,7 @@ int main()
 					return 0;
 				}
 			}
+			break;
 			case CTRLRIGHT:
 				select(start, &position, prevchoice, CTRLRIGHT);
 				break;
