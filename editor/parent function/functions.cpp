@@ -2,9 +2,41 @@
 void clearscreen()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN | BACKGROUND_BLUE);
-	printf("\033[2J");
-	printf("\033[1000D");
-	printf("\033[1000A");
+
+	HANDLE hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD coordScreen = { 0, 0 };    // home for the cursor 
+	DWORD cCharsWritten;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	DWORD dwConSize;
+
+	// Get the number of character cells in the current buffer. 
+
+	if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
+		return;
+	dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+
+	// Fill the entire screen with blanks.
+
+	if (!FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
+		dwConSize, coordScreen, &cCharsWritten))
+		return;
+
+	// Get the current text attribute.
+
+	if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
+		return;
+
+	// Set the buffer's attributes accordingly.
+
+	if (!FillConsoleOutputAttribute(hConsole, csbi.wAttributes,
+		dwConSize, coordScreen, &cCharsWritten))
+		return;
+
+	// Put the cursor at its home coordinates.
+
+	SetConsoleCursorPosition(hConsole, coordScreen);
+
 	}
 void insert(nodeptr *start, nodeptr position, int value)
 {
@@ -126,25 +158,33 @@ void setcursor(nodeptr start, node position)
 {
 	if (position.next == NULL)
 		return;
-	printf("\033[1000D");
-	printf("\033[1000A");
+//	printf("\033[1000D");
+	//printf("\033[1000A");
+	int x = 0;
+	int y = 0;
 	nodeptr cur = start;
 	while (cur != position.next)
 	{
 		switch (cur->data) {
 		case TAB:
-			printf("\033[8C");
+			//printf("\033[8C");
+			x += 8;
 			break;
 		case ENTER:
-			printf("\033[B");
-			printf("\033[1000D");
+			//printf("\033[B");
+			//printf("\033[1000D");
+			x = 0;
+			y += 1;
 			break;
 		default:
-			printf("\033[C");
+			//printf("\033[C");
+			x += 1;
 			break;
 		}
 		cur = cur->next;
 	}
+	COORD coord = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 //seeking a char in the list form the current position to the begining and end for 0 and 1 respectively
 //wont change the position if it couldnt find the char 
