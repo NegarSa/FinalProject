@@ -158,8 +158,7 @@ void setcursor(nodeptr start, node position)
 {
 	if (position.next == NULL)
 		return;
-//	printf("\033[1000D");
-	//printf("\033[1000A");
+
 	int x = 0;
 	int y = 0;
 	nodeptr cur = start;
@@ -167,17 +166,16 @@ void setcursor(nodeptr start, node position)
 	{
 		switch (cur->data) {
 		case TAB:
-			//printf("\033[8C");
+		
 			x += 8;
 			break;
 		case ENTER:
-			//printf("\033[B");
-			//printf("\033[1000D");
+			
 			x = 0;
 			y += 1;
 			break;
 		default:
-			//printf("\033[C");
+			
 			x += 1;
 			break;
 		}
