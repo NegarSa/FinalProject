@@ -1,5 +1,5 @@
-#include"functions.h"
-int main()
+#include"editor-functions.h"
+int myeditor(char **arguments)
 {
 	int character;
 	int prevchoice = -1;

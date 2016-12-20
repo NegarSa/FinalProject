@@ -1,4 +1,4 @@
-#include"functions.h"
+#include"editor-functions.h"
 void clearscreen()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN | BACKGROUND_BLUE);
