@@ -1,6 +1,0 @@
-simple text editor
-
-build the child functoins and place them in the proper location.........
-..... run the multi file trial editor then ........
-//
-reza esfandiarpoor
