@@ -1,4 +1,3 @@
-#include"editor-definitions.h"
 void insert(nodeptr *start, nodeptr position, int value);
 void Delete(nodeptr *start, nodeptr position);
 void print(nodeptr start, node position);
@@ -9,7 +8,8 @@ void toleft(nodeptr position);
 void toright(nodeptr position);
 void goup(nodeptr position);
 void godown(nodeptr position);
-void readfromfile(nodeptr *start, nodeptr position);
+char *getfilename();
+void readfromfile(nodeptr *start, nodeptr position, char *filename);
 void printtofile(nodeptr start);
 void openexe(char *, char *);
 void findstring(nodeptr start);

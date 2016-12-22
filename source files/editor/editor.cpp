@@ -1,3 +1,4 @@
+#include"editor-variables.h"
 #include"editor-functions.h"
 int myeditor(char **arguments)
 {
@@ -13,12 +14,15 @@ int myeditor(char **arguments)
 	buffstart = NULL;
 	node buffpos;
 	buffpos.next = buffpos.previous = NULL;
-
 	clearscreen();
+	if (arguments[1] != NULL) {
+		readfromfile(&start, &position, arguments[1]);
+		print(start, position);
+	}
 	while (1) {
 
 		character = getch();
-
+		
 		switch (character)
 		{
 		case BACKSPACE:
@@ -26,7 +30,7 @@ int myeditor(char **arguments)
 			print(start, position);
 			break;
 		case CTRLR:
-			readfromfile(&start, &position);
+			readfromfile(&start, &position,getfilename());
 			print(start, position);
 			break;
 		case CTRLS:

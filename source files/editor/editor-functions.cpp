@@ -1,4 +1,8 @@
+#include"editor-variables.h"
 #include"editor-functions.h"
+ int fexist = NO;
+ node bselect ;
+ node eselect ;
 void clearscreen()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN | BACKGROUND_BLUE);
@@ -316,14 +320,36 @@ void godown(nodeptr position)
 			toleft(position);
 }
 //read a .txt file and insert it into editor
-void readfromfile(nodeptr *start, nodeptr position)
+void readfromfile(nodeptr *start, nodeptr position,char *filename)
 {
+	FILE *fptr;
+	fptr = fopen("filename.txt", "w");
+	fprintf(fptr, "%s", filename);
+	fclose(fptr);
+	fptr = fopen(filename, "r");
+	if (fptr == NULL) {
+		fptr = fopen(filename, "w");
+	}
+	*start = NULL;
+	position->next = NULL;
+	position->previous = NULL;
+	int  c;
+	c = fgetc(fptr);
+	while (c!=EOF)
+	{
+		insert(start, position, c);
+		c = fgetc(fptr);
+	}
+	fclose(fptr);
+	fexist = YES;
+}
+char *getfilename() {
 	openexe("getfilename.exe", NULL);
 	FILE *fptr;
 	fptr = fopen("filename.txt", "r");
 	if (fptr == NULL) {
 		openexe("printmassage.exe", "ERROR(with_getfilename.exe)");
-		return;
+		return NULL;
 	}
 	char string[50];
 	fgets(string, 50, fptr);
@@ -331,37 +357,12 @@ void readfromfile(nodeptr *start, nodeptr position)
 		if (string[i] == '\n')
 			string[i] = '\0';
 	fclose(fptr);
-	fptr = fopen(string, "r");
-	if (fptr == NULL) {
-		openexe("printmassage.exe", "The_file_doesn't_exist_!!!");
-		return;
-	}
-	*start = NULL;
-	position->next = NULL;
-	position->previous = NULL;
-	int  c;
-	while (!feof(fptr))
-	{
-		c = fgetc(fptr);
-		insert(start, position, c);
-	}
-	fexist = YES;
+	return string;
 }
 void printtofile(nodeptr start)
 {
 	char choice;
-	if (fexist == YES)
-	{
-		openexe("printmassage.exe", "You_either_loaded_this_document_from_a_file_or_saved_it_before(..press_enter_to_continue)");
-		openexe("getuserchoice.exe", "Do_you_want_to_over_write_the_previous_file?_press_'y'_for_yes_and_'n'_for_no!!!");
-		FILE *fptr;
-		fptr = fopen("userchoice.txt", "r");
-		choice = fgetc(fptr);
-		fclose(fptr);
-		if (choice == 'n' || choice == 'N')
-			openexe("getfilename.exe", NULL);
-	}
-	else
+	if (fexist == NO)
 		openexe("getfilename.exe", NULL);
 	FILE *fptr;
 	fptr = fopen("filename.txt", "r");
@@ -460,27 +461,27 @@ void findstring(nodeptr start)
 	int *num;
 	num = (int *)malloc(sizeof(int)*numfound);
 	temp = strstr(string, phrase);
-	for (size_t i = 0; temp != NULL; i++)
+	int l;
+	for (l = 0; temp != NULL; l++)
 	{
-		*(num + i) = temp - string;
+		*(num + l) = temp - string;
 		temp++;
 		temp = strstr(temp, phrase);
 	}
-	*(num + i) = -1;
+	*(num + l) = -1;
 	int phraselen = strlen(phrase);
 	//printing the list
 	cur = start;
 	int j = 0;
+
 	clearscreen();
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE);
+
 	for (i = 0; cur != NULL; i++)
 	{
-		if (i == *(num + j))
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN  | BACKGROUND_GREEN | BACKGROUND_BLUE|BACKGROUND_INTENSITY);
-		if (i == (*(num + j)) + phraselen)
-		{
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE);
-			j++;
-		}
+
+		if (i == *(num + j)) 
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 		switch (cur->data) {
 		case SPACE:
 			printf(" ");
@@ -496,6 +497,11 @@ void findstring(nodeptr start)
 			break;
 		}
 		cur = cur->next;
+		if (i == (*(num + j)) + phraselen - 1)
+		{
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE);
+			j++;
+		}
 	}
 }
 void select(nodeptr start, nodeptr position, int prevchoice, int choice)

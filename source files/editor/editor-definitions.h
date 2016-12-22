@@ -24,7 +24,7 @@
 #define CTRLV 22
 #define YES 1
 #define NO 0
-static int fexist = NO;
+
 struct Node {
 	int data;
 	struct Node *next;
@@ -32,5 +32,3 @@ struct Node {
 };
 typedef struct Node node;
 typedef node * nodeptr;
-static node bselect = { 0 };
-static node eselect = { 0 };
