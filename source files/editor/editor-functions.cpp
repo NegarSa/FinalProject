@@ -1,4 +1,8 @@
+#include"editor-variables.h"
 #include"editor-functions.h"
+ int fexist = NO;
+ node bselect ;
+ node eselect ;
 void clearscreen()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN | BACKGROUND_BLUE);
@@ -319,6 +323,9 @@ void godown(nodeptr position)
 void readfromfile(nodeptr *start, nodeptr position,char *filename)
 {
 	FILE *fptr;
+	fptr = fopen("filename.txt", "w");
+	fprintf(fptr, "%s", filename);
+	fclose(fptr);
 	fptr = fopen(filename, "r");
 	if (fptr == NULL) {
 		fptr = fopen(filename, "w");
@@ -355,18 +362,7 @@ char *getfilename() {
 void printtofile(nodeptr start)
 {
 	char choice;
-	if (fexist == YES)
-	{
-		openexe("printmassage.exe", "You_either_loaded_this_document_from_a_file_or_saved_it_before(..press_enter_to_continue)");
-		openexe("getuserchoice.exe", "Do_you_want_to_over_write_the_previous_file?_press_'y'_for_yes_and_'n'_for_no!!!");
-		FILE *fptr;
-		fptr = fopen("userchoice.txt", "r");
-		choice = fgetc(fptr);
-		fclose(fptr);
-		if (choice == 'n' || choice == 'N')
-			openexe("getfilename.exe", NULL);
-	}
-	else
+	if (fexist == NO)
 		openexe("getfilename.exe", NULL);
 	FILE *fptr;
 	fptr = fopen("filename.txt", "r");

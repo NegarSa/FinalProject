@@ -1,4 +1,3 @@
-#include"editor-definitions.h"
 void insert(nodeptr *start, nodeptr position, int value);
 void Delete(nodeptr *start, nodeptr position);
 void print(nodeptr start, node position);

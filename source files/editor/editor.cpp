@@ -1,3 +1,4 @@
+#include"editor-variables.h"
 #include"editor-functions.h"
 int myeditor(char **arguments)
 {
