@@ -49,7 +49,7 @@ char **parscommand(char *command, int * argnum) {
 	*argnum = position;
 	return arguments;
 }
-int runcommand(char **arguments)
+int runcommand(char **arguments, int argnum)
 {
 	int(*functionpointers[]) (char **, int) = {
 		&su,&passwd,&createuser,&cal,&time,&clear,
