@@ -6,38 +6,110 @@ extern UserProp* CurUser;
 void screen (void)
 {
 
+    return;
 }
-int exif(char **arguments, int argnum)
+int exif(char **arguments, int argnum) // extension problems*****************************************************************
 {
     if (checkarg(*arguments, argnum, 2))
         return -1;
+    char *path;
+    path = (char *) malloc ((strlen(*(arguments + 1)) + 4) * sizeof(char));
+    strcpy(path, *(arguments + 1));
+    strncat(path, "PROP", 4);
+    FILE * prop = fopen(path, "r");
+    while(!feof(prop))
+        fputc(fgetc(prop), stdout);
+    fclose(prop);
+    free (path);
+    return 0;
 }
 int cp(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 3))
         return -1;
+    if (CopyFile(*(arguments + 1), *(arguments + 2), 1))
+    {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND)
+            puts("File not found.");
+        else if (GetLastError() == ERROR_ACCESS_DENIED)
+            puts("Access Denied.");
+        else
+            puts("An error occurred.");
+        return 99999999;
+    }
     return 0;
 }
 int mv(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 3))
         return -1;
+    if (MoveFile(*(arguments + 1), *(arguments + 2)))
+    {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND)
+            puts("File not found.");
+        else if (GetLastError() == ERROR_ACCESS_DENIED)
+            puts("Access Denied.");
+        else
+            puts("An error occurred.");
+        return 99999999;
+    }
     return 0;
 }
 int wc(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 2))
         return -1;
+    FILE *TarFile = fopen(*(arguments + 1), "r");
+    char buff = 0;
+    int lineCount = 0, charCount = 0, spcCount = 0;
+    while (!feof(TarFile))
+    {
+        buff = (char)fgetc(TarFile);
+        if (buff == '\n')
+            ++lineCount;
+        else if (buff == ' ')
+            ++spcCount;
+        ++charCount;
+    }
+    fclose(TarFile);
+    printf("%35s : %20d\n", "Line Count", lineCount + 1);
+    printf("%35s : %20d\n", "Character Count", charCount);
+    printf("%35s : %20d\n", "Character Count(without spaces)", charCount - spcCount -lineCount);
+    printf("%35s : %20d\n", "Word Count", spcCount + lineCount + !(buff == '\n' || buff == ' '));
     return 0;
 }
 int diff(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 3))
         return -1;
+    FILE * file1 = fopen(*(arguments + 1), "rb");
+    FILE * file2 = fopen(*(arguments + 2), "rb");
+    if (!file1 || !file2)
+    {
+        puts("There is no file with that name.");
+        return -1921;
+    }
+    char buff1, buff2;
+    while (!feof (file1))
+    {
+        fread(&buff1, sizeof(char), 1, file1);
+        fread(&buff2, sizeof(char), 1, file2);
+        if (buff1 != buff2)
+        {
+            puts ("Different.");
+            fclose(file1);
+            fclose(file2);
+            return -1;
+        }
+    }
+    puts ("Same.");
+    fclose(file1);
+    fclose(file2);
     return 0;
 }
 int checkarg (char *name, int argnum, int validarg)
 {
+
     if (argnum != validarg)
     {
         printf("Wrong arguments for the %s command.\n", name);
@@ -239,4 +311,5 @@ int ls (char** arguments, int argnum)
         puts("An Error Occurred.");
     return 0;
 }
+
 
