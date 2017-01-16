@@ -60,11 +60,18 @@ int myeditor(char **arguments, int argnum)
 int game(char **arguments, int argnum)
 { }
 int clear(char **arguments, int argnum)
-{ }
+{
+    if (checkarg(*arguments, argnum, 1)) //it's wrong
+        return -1;
+    screen();
+    return 0;
+}
 int mytime(char **arguments, int argnum)
 { }
 int myexit(char **arguments, int argnum)
 {
+    if (checkarg(*arguments, argnum, 1)) //it's wrong
+        return -1;
     return 42;
 }
 
@@ -74,11 +81,21 @@ int runcommand (char ** arguments, int argnum)
             &su, &passwd, &createuser, &cal, &mytime, &clear,
             &myexit, &history, &cd, &pwd, &mymkdir, &cat,
             &rm, &cp, &mv, &ls, &exif, &myeditor, &wc, &diff, &help, &game, &chcl};
+
     if (arguments[0] == NULL)
         return 0;
     for (int m = 0; m < COMMNUMBER; m++)
         if (!strcmp(arguments[0], functionsname[m]))
             return(*functionpointers[m])(arguments, argnum);
+    for (int i = 0; i < argnum; ++i)
+    {
+        if (strcmp(arguments[i], ">>") == 0 || strcmp(arguments[i], ">") == 0) {
+            expp(arguments, argnum, i);
+            return 0;
+        }
+    }
+    if (strcmp((*arguments + 1), "user") == 0 && strcmp((*arguments), "create") == 0 )
+        return (*functionpointers[2])(arguments, argnum);
     puts("The command is not valid!");
     return 0;
 }
