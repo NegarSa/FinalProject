@@ -5,17 +5,29 @@ extern UserProp* CurUser;
 
 void screen (void)
 {
-
-    return;
+    DWORD n;//Number of characters written
+    DWORD size;// number of visible characters
+    COORD coord = {0};//Top left screen position
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
+    GetConsoleScreenBufferInfo ( h, &csbi );
+    // Find the number of characters to overwrite
+    size = (DWORD) csbi.dwSize.X * csbi.dwSize.Y;
+    // Overwrite the screen buffer with whitespace
+    FillConsoleOutputCharacter(h, TEXT(' '), size, coord, &n); //n is output, {num of char actually written}
+    GetConsoleScreenBufferInfo(h, &csbi);
+    FillConsoleOutputAttribute(h, csbi.wAttributes, size, coord, &n);
+    // Reset the cursor to the top left position
+    SetConsoleCursorPosition(h, coord);
 }
-int exif(char **arguments, int argnum) // extension problems*****************************************************************
+int exif(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 2))
         return -1;
     char *path;
-    path = (char *) malloc ((strlen(*(arguments + 1)) + 4) * sizeof(char));
+    path = (char *) malloc ((strlen(*(arguments + 1)) + 10) * sizeof(char));
     strcpy(path, *(arguments + 1));
-    strncat(path, "PROP", 4);
+    strncat(path, "PROP.dat", 8);
     FILE * prop = fopen(path, "r");
     while(!feof(prop))
         fputc(fgetc(prop), stdout);
@@ -27,7 +39,7 @@ int cp(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 3))
         return -1;
-    if (CopyFile(*(arguments + 1), *(arguments + 2), 1))
+    if (!CopyFile(*(arguments + 1), *(arguments + 2), 1))
     {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
             puts("File not found.");
@@ -37,13 +49,25 @@ int cp(char **arguments, int argnum)
             puts("An error occurred.");
         return 99999999;
     }
+    else {
+        char *path;
+        path = (char *) malloc ((strlen(*(arguments + 1)) + 4) * sizeof(char));
+        strcpy(path, *(arguments + 1));
+        strncat(path, "PROP.dat", 8);
+        struct stat check;
+        if(stat(path, &check))
+        {
+            if (!CopyFile(path, *(arguments + 2), 1))
+                puts("An error occurred.");
+        }
+    }
     return 0;
 }
 int mv(char **arguments, int argnum)
 {
     if (checkarg(*arguments, argnum, 3))
         return -1;
-    if (MoveFile(*(arguments + 1), *(arguments + 2)))
+    if (!MoveFile(*(arguments + 1), *(arguments + 2)))
     {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
             puts("File not found.");
@@ -52,6 +76,18 @@ int mv(char **arguments, int argnum)
         else
             puts("An error occurred.");
         return 99999999;
+    }
+    else {
+        char *path;
+        path = (char *) malloc ((strlen(*(arguments + 1)) + 4) * sizeof(char));
+        strcpy(path, *(arguments + 1));
+        strncat(path, "PROP.dat", 8);
+        struct stat check;
+        if(stat(path, &check))
+        {
+            if (!MoveFile(path, *(arguments + 2)))
+                puts("An error occurred.");
+        }
     }
     return 0;
 }
@@ -67,15 +103,15 @@ int wc(char **arguments, int argnum)
         buff = (char)fgetc(TarFile);
         if (buff == '\n')
             ++lineCount;
-        else if (buff == ' ')
+        if (isspace(buff))
             ++spcCount;
         ++charCount;
     }
     fclose(TarFile);
     printf("%35s : %20d\n", "Line Count", lineCount + 1);
     printf("%35s : %20d\n", "Character Count", charCount);
-    printf("%35s : %20d\n", "Character Count(without spaces)", charCount - spcCount -lineCount);
-    printf("%35s : %20d\n", "Word Count", spcCount + lineCount + !(buff == '\n' || buff == ' '));
+    printf("%35s : %20d\n", "Character Count(without spaces)", charCount - spcCount);
+    printf("%35s : %20d\n", "Word Count", spcCount + !(buff == '\n' || buff == ' '));
     return 0;
 }
 int diff(char **arguments, int argnum)
@@ -120,60 +156,31 @@ int checkarg (char *name, int argnum, int validarg)
 }
 int help (char** arguments, int argnum)
 {
-    char *path = (char *)malloc (MAX_PATH* sizeof(char));
-    if (!GetCurrentDirectory(MAX_PATH, path)) { //saving the pwd of the program
-        puts("Error Finding the help.");
-        return -1;
-    }
-    if (!SetCurrentDirectory(mainDirectory)) { //changing the current directory to the main project directory
-        puts("Error Finding the help.");
-        return -2;
-    }
-    FILE * helper = fopen("helper.txt", "r"); // helper.txt is in the main directory
-    if (!helper)
-    {
-        puts("Error Finding the help.");
-        return -3;
-    }
-    char *buff = (char *) malloc (400* sizeof(char));
-    char comname[13];
     int flag = -1;
     if (argnum == 2) {
-        while (!feof(helper)) //browses until the file ends
+        for (int x = 0; x < COMMNUMBER; ++x)
         {
-            fgets (buff, 400, helper); // gets each line
-            sscanf(buff, "%s", comname); // the first word in the line is the command name
-            if (!strcmp(comname, *(arguments + 1))) // if the command name entered matches the input
+            if (strcmp(*(arguments + 1), functionsname[x]) == 0)
             {
-                printf("%s\n", buff);
-                free(buff);
-                flag = 1;
-                break;
+                printf("%s\n", functionshelp[x]);
+                flag = 0;
             }
         }
-        if (flag == -1)
+            if (flag == -1)
         {
             puts ("There is no command with that name.");
             puts("you can use 'help' without any arguments to see a list of all the commands.");
-            free(buff);
         }
     }
     else if (argnum == 1){
-        while (!feof(helper))
-        {
-            fgets (buff, 500, helper);
-            sscanf(buff, "%s", comname); // prints all of the command names
-            printf("%s\n", comname);
-        }
-        free(buff);
+        for (int x = 0; x < COMMNUMBER; ++x)
+            printf("%s\n", functionsname[x]);
     } else
     {
         printf("Wrong arguments for the help command.\n");
-        //printf("Try 'help rm' to get information on the command\n");
         return -1;
     }
-    SetCurrentDirectory(path); // gets the current directory back to the starting one
-    free(path);
+
     return 0;
 }
 
@@ -188,6 +195,40 @@ int cd (char ** arguments, int argnum)
     }
     return 0;
 }
+void delDirRec (DIR *name)
+{
+    struct dirent *dir; // struct that keeps the props of dirs and files
+    struct stat stt; // Getting stat of the files and dirs
+    if (name) //if not null
+    {
+        while ((dir = readdir(name)) != NULL)
+        {
+            if (stat(dir->d_name, &stt) == -1) // save the stat of the file/dir in the stt
+            {
+                puts("Detection Error.");
+                return;
+            }
+            if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+                continue;
+            if (S_ISDIR(stt.st_mode)) // if the stt is a dir,
+            {
+                closedir(name);
+                DIR *newdir = opendir(dir->d_name);
+                if (!RemoveDirectory(dir->d_name)) //if it failed the directory is not empty
+                {
+                    delDirRec(newdir);
+                    RemoveDirectory(dir->d_name);
+                }
+            }
+            else
+                if (!DeleteFile(dir->d_name))
+                    if (GetLastError() == ERROR_ACCESS_DENIED)
+                        puts("Access Denied.");
+        }
+        closedir(name);
+    } else
+        puts("An Error Occurred.");
+}
 int rm (char** arguments, int argnum)
 {
     if (argnum == 3 && strcmp(*(arguments+1), "-r"))
@@ -198,7 +239,8 @@ int rm (char** arguments, int argnum)
     }
     else if (argnum == 3 && !strcmp(*(arguments+1), "-r"))
     {
-        //delete directory
+        DIR *now = opendir(".");
+        delDirRec(now);
     }
     else if (argnum == 2)
     {
@@ -213,6 +255,18 @@ int rm (char** arguments, int argnum)
             {
                 puts("Access Denied.");
                 return -1;
+            }
+        }
+        else {
+            char *path;
+            path = (char *) malloc ((strlen(*(arguments + 1)) + 4) * sizeof(char));
+            strcpy(path, *(arguments + 1));
+            strncat(path, "PROP.dat", 8);
+            struct stat check;
+            if(stat(path, &check))
+            {
+                if (!DeleteFile(path))
+                    puts("An error occurred.");
             }
         }
     }
@@ -312,4 +366,44 @@ int ls (char** arguments, int argnum)
     return 0;
 }
 
-
+int expp (char** arguments, int argnum, int place)
+{
+    if (argnum - place != 2)
+    {
+        printf("Wrong arguments for the > or >> command.\n");
+        printf("Try 'help > or help >>' to get information on the command\n");
+        return -1;
+    }
+    struct stat st1, st2;
+    int result2 = stat(*(arguments + place + 1), &st2);
+    if (result2 != 0)
+    {
+        printf("Wrong arguments for the > or >> command.\n");
+        printf("Try 'help > or help >>' to get information on the command\n");
+        return -1;
+    }
+    if (place == 1) {
+        int result1 = stat(*(arguments), &st1);
+        if (result1 == 0) {
+            FILE *file1 = fopen(*arguments, "r");
+            FILE *file2 = fopen(*(arguments + 2), strcmp(*(arguments + 1), ">>") == 0 ? "a" : "w");
+            while (1) {
+                fputc(fgetc(file1), file2);
+                if (feof(file1))
+                    break;
+            }
+            return 0;
+        }
+        else {
+            FILE *file2 = fopen(*(arguments + place + 1), strcmp(*(arguments + 1), ">>") == 0 ? "a" : "w");
+            int i = 0;
+            for (int j = 0; j < place ; ++j) {
+                fputc(*(arguments+j)[i], file2);
+                if (i > strlen(*arguments))
+                    break;
+            }
+            return 0;
+        }
+    }
+    return 0;
+}
