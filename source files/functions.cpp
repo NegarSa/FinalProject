@@ -8,7 +8,6 @@ char *getcommand()
 		puts("allocation error!!!!");
 		return 0;
 	}
-	screenfeatures();
 	printf("\\");
 	int ch;
 	while (1)
@@ -63,22 +62,6 @@ int runcommand(char **arguments, int argnum)
 			return(*functionpointers[m])(arguments, argnum);
 	puts("the command is not valid!!!");
 	return 0;
-}
-void screenfeatures()
-{
-	HANDLE wHnd;
-	HANDLE rHnd;
-	wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
-	rHnd = GetStdHandle(STD_INPUT_HANDLE);
-
-	SetConsoleTitle(L"Print massage...");
-
-	SMALL_RECT windowSize = { 0, 0, 90, 90 };
-	SetConsoleWindowInfo(wHnd, 1, &windowSize);
-
-	COORD bufferSize = { 10, 10 };
-	SetConsoleScreenBufferSize(wHnd, bufferSize);
-
 }
 //......
 
@@ -232,6 +215,11 @@ int help(char **arguments, int argnum)
 }
 int myeditor(char **arguments, int argnum)
 {
-	popenexe("trial.exe", arguments[1]);
+	popenexe("editor.exe", arguments[1]);
+	return 0;
+}
+int game(char **arguments, int argnum)
+{
+	popenexe("game.exe", arguments[1]);
 	return 0;
 }
