@@ -3,6 +3,7 @@
 char *getcommand();
 char **parscommand(char *, int *);
 int runcommand(char **, int);
+void screenfeatures();
 //functions to excecute the commands
 int su(char **arguments, int argnum);
 int passwd(char **arguments, int argnum);
@@ -26,5 +27,7 @@ int wc(char **arguments, int argnum);
 int diff(char **arguments, int argnum);
 int help(char **arguments, int argnum);
 int game(char **arguments, int argnum);
-
 //end of the functions to excecute commands
+
+//other functions
+void popenexe(char *command, char *msg);

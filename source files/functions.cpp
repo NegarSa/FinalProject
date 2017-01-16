@@ -8,6 +8,7 @@ char *getcommand()
 		puts("allocation error!!!!");
 		return 0;
 	}
+	screenfeatures();
 	printf("\\");
 	int ch;
 	while (1)
@@ -63,7 +64,71 @@ int runcommand(char **arguments, int argnum)
 	puts("the command is not valid!!!");
 	return 0;
 }
+void screenfeatures()
+{
+	HANDLE wHnd;
+	HANDLE rHnd;
+	wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	rHnd = GetStdHandle(STD_INPUT_HANDLE);
 
+	SetConsoleTitle(L"Print massage...");
+
+	SMALL_RECT windowSize = { 0, 0, 90, 90 };
+	SetConsoleWindowInfo(wHnd, 1, &windowSize);
+
+	COORD bufferSize = { 10, 10 };
+	SetConsoleScreenBufferSize(wHnd, bufferSize);
+
+}
+//......
+
+void popenexe(char *command, char *msg)
+{
+	size_t size = strlen(command);
+	wchar_t* wArr = new wchar_t[size];
+	int i;
+	for (i = 0; i < size; ++i)
+		wArr[i] = command[i];
+	wArr[i] = '\0';
+	wchar_t* wArr2;
+	if (msg != NULL)
+	{
+		size_t size2 = strlen(msg);
+		wArr2 = new wchar_t[size2];
+		for (i = 0; i < size2; ++i)
+			wArr2[i] = msg[i];
+		wArr2[i] = '\0';
+	}
+	else
+		wArr2 = NULL;
+	SHELLEXECUTEINFO rSEI = { 0 };
+	rSEI.cbSize = sizeof(rSEI);
+	rSEI.lpVerb = L"open";
+	rSEI.lpFile = wArr;
+
+	rSEI.lpParameters = wArr2;
+	rSEI.nShow = SW_NORMAL;
+	rSEI.fMask = SEE_MASK_NOCLOSEPROCESS;
+
+	ShellExecuteEx(&rSEI);   // you should check for an error here
+	while (TRUE) {
+		DWORD nStatus = MsgWaitForMultipleObjects(
+			1, &rSEI.hProcess, FALSE,
+			INFINITE, QS_ALLINPUT   // drop through on user activity 
+			);
+		if (nStatus == WAIT_OBJECT_0) {  // done: the program has ended
+			break;
+		}
+		MSG msg;     // else process some messages while waiting...
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			DispatchMessage(&msg);
+		}
+	}  // launched process has exited
+
+	DWORD dwCode;
+	GetExitCodeProcess(rSEI.hProcess, &dwCode);  // ERRORLEVEL value
+	return;
+}
 //functions to run commands
 int su(char **arguments, int argnum)
 {
@@ -165,4 +230,8 @@ int help(char **arguments, int argnum)
 	puts("help");
 	return 0;
 }
-
+int myeditor(char **arguments, int argnum)
+{
+	popenexe("trial.exe", arguments[1]);
+	return 0;
+}
